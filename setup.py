@@ -14,8 +14,6 @@ setup(
     install_requires=[
         'django',
         'pycrypto',
-        'nose',
-        'django-nose>=1.4.4',
         'tox',
     ],
     classifiers=[
