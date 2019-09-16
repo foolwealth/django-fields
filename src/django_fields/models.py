@@ -24,7 +24,7 @@ class PrivateFieldsMetaclass(models.base.ModelBase):
         super_new = super(PrivateFieldsMetaclass, cls).__new__
 
         prefix = '_' + name + '__'
-        for key, value in attrs.iteritems():
+        for key, value in attrs.items():
             if key.startswith(prefix) and hasattr(value, 'db_column') and value.db_column is None:
                 value.db_column = key[len(prefix):]
 

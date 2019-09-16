@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from builtins import range
+from builtins import object
 import datetime
 import re
 import sys
@@ -223,14 +225,14 @@ class EncryptTests(unittest.TestCase):
     def _get_encrypted_password(self, id):
         cursor = connection.cursor()
         cursor.execute("select password from django_fields_encobject where id = %s", [id,])
-        passwords = list(map(lambda x: x[0], cursor.fetchall()))
+        passwords = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(passwords), 1)  # only one
         return passwords[0]
 
     def _get_encrypted_password_cipher(self, id):
         cursor = connection.cursor()
         cursor.execute("select password from django_fields_cipherencobject where id = %s", [id,])
-        passwords = list(map(lambda x: x[0], cursor.fetchall()))
+        passwords = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(passwords), 1)  # only one
         return passwords[0]
 
@@ -297,21 +299,21 @@ class DateEncryptTests(unittest.TestCase):
     def _get_encrypted_date(self, id):
         cursor = connection.cursor()
         cursor.execute("select important_date from django_fields_encdate where id = %s", [id,])
-        important_dates = list(map(lambda x: x[0], cursor.fetchall()))
+        important_dates = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(important_dates), 1)  # only one
         return important_dates[0]
 
     def _get_encrypted_datetime(self, id):
         cursor = connection.cursor()
         cursor.execute("select important_datetime from django_fields_encdatetime where id = %s", [id,])
-        important_datetimes = list(map(lambda x: x[0], cursor.fetchall()))
+        important_datetimes = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(important_datetimes), 1)  # only one
         return important_datetimes[0]
 
     def _get_encrypted_date_cipher(self, id):
         cursor = connection.cursor()
         cursor.execute("select important_date from django_fields_cipherencdate where id = %s", [id,])
-        important_dates = list(map(lambda x: x[0], cursor.fetchall()))
+        important_dates = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(important_dates), 1)  # only one
         return important_dates[0]
 
@@ -354,7 +356,7 @@ class NumberEncryptTests(unittest.TestCase):
         cursor = connection.cursor()
         sql = "select important_number from django_fields_enc%s where id = %%s" % (type_name,)
         cursor.execute(sql, [id,])
-        important_numbers = list(map(lambda x: x[0], cursor.fetchall()))
+        important_numbers = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(important_numbers), 1)  # only one
         return important_numbers[0]
 
@@ -461,7 +463,7 @@ class EncryptEmailTests(unittest.TestCase):
     def _get_encrypted_email(self, id):
         cursor = connection.cursor()
         cursor.execute("select email from django_fields_emailobject where id = %s", [id,])
-        emails = list(map(lambda x: x[0], cursor.fetchall()))
+        emails = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(emails), 1)  # only one
         return emails[0]
 
@@ -495,7 +497,7 @@ class DatabaseSchemaTests(unittest.TestCase):
     def _get_raw_password_value(self, id):
         cursor = connection.cursor()
         cursor.execute("select password from django_fields_cipherencobject where id = %s", [id, ])
-        passwords = list(map(lambda x: x[0], cursor.fetchall()))
+        passwords = list([x[0] for x in cursor.fetchall()])
         self.assertEqual(len(passwords), 1)  # only one
         return passwords[0]
 

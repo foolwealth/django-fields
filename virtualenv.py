@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 """Create a "virtual" Python installation
 """
+from __future__ import division
 
 # If you change the version here, change it in setup.py 
 # and docs/conf.py as well.
+from builtins import map
+from builtins import oct
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 virtualenv_version = "1.6.4"
 
 import base64
@@ -243,7 +249,7 @@ class Logger(object):
 
     DEBUG = logging.DEBUG
     INFO = logging.INFO
-    NOTIFY = (logging.INFO+logging.WARN)/2
+    NOTIFY = old_div((logging.INFO+logging.WARN),2)
     WARN = WARNING = logging.WARN
     ERROR = logging.ERROR
     FATAL = logging.FATAL
@@ -1249,7 +1255,7 @@ def install_activate(home_dir, bin_dir, prompt=None):
 
     files['activate_this.py'] = ACTIVATE_THIS
     vname = os.path.basename(os.path.abspath(home_dir))
-    for name, content in files.items():
+    for name, content in list(files.items()):
         content = content.replace('__VIRTUAL_PROMPT__', prompt or '')
         content = content.replace('__VIRTUAL_WINPROMPT__', prompt or '(%s)' % vname)
         content = content.replace('__VIRTUAL_ENV__', os.path.abspath(home_dir))
@@ -1289,7 +1295,7 @@ def fix_lib64(lib_dir):
     instead of lib/pythonX.Y.  If this is such a platform we'll just create a
     symlink so lib64 points to lib
     """
-    if [p for p in distutils.sysconfig.get_config_vars().values()
+    if [p for p in list(distutils.sysconfig.get_config_vars().values())
         if isinstance(p, basestring) and 'lib64' in p]:
         logger.debug('This system uses lib64; symlinking lib64 to lib')
         assert os.path.basename(lib_dir) == 'python%s' % sys.version[:3], (

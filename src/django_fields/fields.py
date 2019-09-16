@@ -1,9 +1,16 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import bytes
+from builtins import map
+from builtins import range
 import binascii
 import codecs
 import datetime
 import string
 import sys
 import warnings
+import pickle
 
 from django import forms
 from django.forms import fields
@@ -20,14 +27,6 @@ if hasattr(settings, 'USE_CPICKLE'):
         "be used unless it cannot be found or DEBUG=True",
         DeprecationWarning,
     )
-
-if settings.DEBUG:
-    import pickle
-else:
-    try:
-        import cPickle as pickle
-    except:
-        import pickle
 
 
 class BaseEncryptedField(models.Field):
@@ -208,7 +207,7 @@ class BaseEncryptedDateField(BaseEncryptedField):
             else:
                 date_text = super(BaseEncryptedDateField, self).from_db_value(
                     value, expression, connection, context)
-                date_value = self.date_class(*map(int, date_text.split(':')))
+                date_value = self.date_class(*list(map(int, date_text.split(':'))))
         return date_value
 
     def get_db_prep_value(self, value, connection=None, prepared=False):
