@@ -4,11 +4,6 @@ import sys
 
 from django.db import models
 
-if sys.version_info[0] == 3:
-    PYTHON3 = True
-else:
-    PYTHON3 = False
-
 
 class PrivateFieldsMetaclass(models.base.ModelBase):
     """Metaclass to set right default db_column values
@@ -24,6 +19,7 @@ class PrivateFieldsMetaclass(models.base.ModelBase):
       `secret_state`, please!"
 
     """
+
     def __new__(cls, name, bases, attrs):
         super_new = super(PrivateFieldsMetaclass, cls).__new__
 
@@ -34,4 +30,3 @@ class PrivateFieldsMetaclass(models.base.ModelBase):
 
         result = super_new(cls, name, bases, attrs)
         return result
-

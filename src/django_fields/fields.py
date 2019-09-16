@@ -10,6 +10,7 @@ from django.forms import fields
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_str, force_text as force_unicode
 from Crypto import Random
 from Crypto.Random import random
 
@@ -27,13 +28,6 @@ else:
         import cPickle as pickle
     except:
         import pickle
-
-if sys.version_info[0] == 3:
-    PYTHON3 = True
-    from django.utils.encoding import smart_str, force_text as force_unicode
-else:
-    PYTHON3 = False
-    from django.utils.encoding import smart_str, force_unicode
 
 
 class BaseEncryptedField(models.Field):
@@ -84,12 +78,8 @@ class BaseEncryptedField(models.Field):
         super(BaseEncryptedField, self).__init__(*args, **kwargs)
 
     def _is_encrypted(self, value):
-        if PYTHON3 is True:
-            is_enc = isinstance(value, str) and value.startswith(self.prefix)
-            return is_enc
-        else:
-            return isinstance(value, basestring) and value.startswith(
-                self.prefix)
+        is_enc = isinstance(value, str) and value.startswith(self.prefix)
+        return is_enc
 
     def _get_padding(self, value):
         # We always want at least 2 chars of padding (including zero byte),
@@ -117,43 +107,26 @@ class BaseEncryptedField(models.Field):
         if value is None:
             return None
 
-        if PYTHON3 is True:
-            value = bytes(value.encode('utf-8'))
-        else:
-            value = smart_str(value)
+        value = bytes(value.encode('utf-8'))
 
         if not self._is_encrypted(value):
             padding = self._get_padding(value)
             if padding > 0:
-                if PYTHON3 is True:
-                    value += bytes("\0".encode('utf-8')) + bytes(
-                        ''.encode('utf-8')).join([
-                            bytes(random.choice(
-                                string.printable).encode('utf-8'))
-                            for index in range(padding - 1)])
-                else:
-                    value += "\0" + ''.join([
-                        random.choice(string.printable)
-                        for index in range(padding - 1)
-                    ])
+                value += bytes("\0".encode('utf-8')) + bytes(
+                    ''.encode('utf-8')).join([
+                        bytes(random.choice(
+                            string.printable).encode('utf-8'))
+                        for index in range(padding - 1)])
             if self.block_type:
                 self.cipher = self.cipher_object.new(
                     self.secret_key,
                     getattr(self.cipher_object, self.block_type),
                     self.iv)
-                if PYTHON3 is True:
-                    value = self.prefix + binascii.b2a_hex(
-                        self.iv + self.cipher.encrypt(value)).decode('utf-8')
-                else:
-                    value = self.prefix + binascii.b2a_hex(
-                        self.iv + self.cipher.encrypt(value))
+                value = self.prefix + binascii.b2a_hex(
+                    self.iv + self.cipher.encrypt(value)).decode('utf-8')
             else:
-                if PYTHON3 is True:
-                    value = self.prefix + binascii.b2a_hex(
-                        self.cipher.encrypt(value)).decode('utf-8')
-                else:
-                    value = self.prefix + binascii.b2a_hex(
-                        self.cipher.encrypt(value))
+                value = self.prefix + binascii.b2a_hex(
+                    self.cipher.encrypt(value)).decode('utf-8')
         return value
 
     def deconstruct(self):
@@ -304,20 +277,14 @@ class BaseEncryptedNumberField(BaseEncryptedField):
 
 
 class EncryptedIntField(BaseEncryptedNumberField):
-    if PYTHON3 is True:
-        max_raw_length = len(str(-sys.maxsize - 1))
-    else:
-        max_raw_length = len(str(-sys.maxint - 1))
+    max_raw_length = len(str(-sys.maxsize - 1))
     number_type = int
     format_string = "%d"
 
 
 class EncryptedLongField(BaseEncryptedNumberField):
     max_raw_length = None  # no limit
-    if PYTHON3 is True:
-        number_type = int
-    else:
-        number_type = long
+    number_type = int
     format_string = "%d"
 
     def get_internal_type(self):
@@ -336,35 +303,25 @@ class PickleField(models.TextField):
     serialize = False
 
     def get_db_prep_value(self, value, connection=None, prepared=False):
-        if PYTHON3 is True:
-            # When PYTHON3, we convert data to base64 to prevent errors when
-            # unpickling.
-            val = codecs.encode(pickle.dumps(value), 'base64').decode()
-            return val
-        else:
-            return pickle.dumps(value)
+        # When PYTHON3, we convert data to base64 to prevent errors when
+        # unpickling.
+        val = codecs.encode(pickle.dumps(value), 'base64').decode()
+        return val
 
     def to_python(self, value):
         return self.from_db_value(value)
 
     def from_db_value(self, value, expression, connection, context):
-        if PYTHON3 is True:
-            if not isinstance(value, str):
-                return value
-        else:
-            if not isinstance(value, basestring):
-                return value
+        if not isinstance(value, str):
+            return value
 
         # Tries to convert unicode objects to string, cause loads pickle from
         # unicode excepts ugly ``KeyError: '\x00'``.
         try:
-            if PYTHON3 is True:
-                # When PYTHON3, data are in base64 to prevent errors when
-                # unpickling.
-                val = pickle.loads(codecs.decode(value.encode(), "base64"))
-                return val
-            else:
-                return pickle.loads(smart_str(value))
+            # When PYTHON3, data are in base64 to prevent errors when
+            # unpickling.
+            val = pickle.loads(codecs.decode(value.encode(), "base64"))
+            return val
         # If pickle could not loads from string it's means that it's Python
         # string saved to PickleField.
         except ValueError:
