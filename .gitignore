@@ -13,3 +13,4 @@ env
 pip-log.txt
 .tox
 .venv/
+.idea/
