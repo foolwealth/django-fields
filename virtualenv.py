@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """Create a "virtual" Python installation
 """
-from __future__ import division
+
 
 # If you change the version here, change it in setup.py 
 # and docs/conf.py as well.
 from builtins import map
 from builtins import oct
-from past.builtins import basestring
+from past.builtins import str
 from builtins import object
 from past.utils import old_div
 virtualenv_version = "1.6.4"
@@ -33,14 +33,6 @@ except ImportError:
         sys.exit(101)
     else:
         raise
-try:
-    set
-except NameError:
-    from sets import Set as set
-try:
-    basestring
-except NameError:
-    basestring = str
 
 join = os.path.join
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
@@ -788,8 +780,7 @@ def main():
         parser.print_help()
         sys.exit(2)
     if len(args) > 1:
-        print('There must be only one argument: DEST_DIR (you gave %s)' % (
-            ' '.join(args)))
+        print('There must be only one argument: DEST_DIR (you gave {})'.format(' '.join(args)))
         parser.print_help()
         sys.exit(2)
 
@@ -933,7 +924,7 @@ def path_locations(home_dir):
             try:
                 import win32api
             except ImportError:
-                print('Error: the path "%s" has a space in it' % home_dir)
+                print(('Error: the path "%s" has a space in it'.format(home_dir)))
                 print('To handle these kinds of paths, the win32api module must be installed:')
                 print('  http://sourceforge.net/projects/pywin32/')
                 sys.exit(3)
@@ -1296,7 +1287,7 @@ def fix_lib64(lib_dir):
     symlink so lib64 points to lib
     """
     if [p for p in list(distutils.sysconfig.get_config_vars().values())
-        if isinstance(p, basestring) and 'lib64' in p]:
+        if isinstance(p, str) and 'lib64' in p]:
         logger.debug('This system uses lib64; symlinking lib64 to lib')
         assert os.path.basename(lib_dir) == 'python%s' % sys.version[:3], (
             "Unexpected python lib dir: %r" % lib_dir)

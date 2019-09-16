@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+
 
 from builtins import range
 from builtins import object
@@ -182,7 +182,7 @@ class EncryptTests(unittest.TestCase):
         self.assertRaises(Exception, obj.save)
 
     def test_UTF8(self):
-        password = u'совершенно секретно'
+        password = 'совершенно секретно'
         obj = EncObject(password = password)
         obj.save()
         obj = EncObject.objects.get(id=obj.id)
@@ -378,10 +378,9 @@ class TestPickleField(unittest.TestCase):
         obj = PickleObject.objects.get(name='default')
         self.assertEqual(obj.data, items)
 
-    def test_string_and_unicode_data(self):
+    def test_unicode_data(self):
         DATA = (
-            ('string', 'Simple string'),
-            ('unicode', u'Simple unicode string'),
+            ('unicode', 'Simple unicode string'),
         )
 
         for name, data in DATA:
@@ -431,7 +430,7 @@ class EncryptEmailTests(unittest.TestCase):
         self.assertEqual(email, obj.email)
 
     def test_UTF8(self):
-        email = u'совершенно@секретно.com'
+        email = 'совершенно@секретно.com'
         obj = EmailObject(email = email)
         obj.save()
         obj = EmailObject.objects.get(id=obj.id)
